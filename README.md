@@ -99,7 +99,13 @@ Each log contains:
 ---
 
 ## 📄 Output Preview
-
+![Preview 1](assets/preview1.png)
+![Preview 2](assets/preview2.png)
+![Preview 3](assets/preview3.png)
+![Preview 4](assets/preview4.png)
+![Preview 5](assets/preview5.png)
+![Preview 6](assets/preview6.png)
+![Preview 7](assets/preview7.png)
 
 ---
 
