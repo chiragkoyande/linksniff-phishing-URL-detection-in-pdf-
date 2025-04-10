@@ -100,7 +100,6 @@ Each log contains:
 
 ## 📄 Output Preview
 
-![Example Output](https://github.com/your-username/Linksniff/assets/output-preview.png)
 
 ---
 
