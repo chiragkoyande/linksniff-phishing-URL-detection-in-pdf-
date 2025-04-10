@@ -58,33 +58,6 @@ python app.py
 
 ---
 
-## 🚀 How to Run on Replit
-
-Prompt for Replit AI setup:
-```bash
-Create a full-stack project using Python Flask (backend) and HTML/CSS/JS (frontend).
-- Add file upload support in HTML to accept PDF.
-- Use Flask API to receive base64-encoded PDF and analyze it using PyPDF2.
-- Parse URLs, analyze for phishing using heuristic features.
-- Display result in frontend with risk levels, URL, and page number.
-- Include log saving to `malicious_urls.log`.
-```
-
----
-
-## 🚀 How to Run on Vercel (Frontend)
-
-Prompt for Vercel AI setup:
-```bash
-Create a frontend project using HTML, CSS, and JavaScript for a phishing detection tool.
-- Connect to a Flask backend hosted on Replit or localhost.
-- Allow user to upload a PDF and preview it.
-- Highlight detected phishing URLs with color indicators.
-- Include a risk percentage display and download report button.
-```
-
----
-
 ## 🧠 Heuristic Parameters Explained
 
 | Feature             | Example                         | Description                                                       |
@@ -143,4 +116,4 @@ https://github.com/your-username/Linksniff
 
 ## 📜 License
 
-MIT License © 2025 Linksniff Team
+MIT License © 2025 chirag koyande 
