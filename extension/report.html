@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Analysis Report - linksniff </title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="dark-mode">
+  <div class="report-container">
+    <div class="report-header">
+      <h1 class="report-title">linksniff  Phishing Analysis Report</h1>
+      <p class="report-subtitle">Generated on <span id="report-date"></span></p>
+    </div>
+    
+    <div class="report-section">
+      <h2 class="report-section-title">Risk Summary</h2>
+      
+      <div class="report-summary">
+        <div class="summary-item">
+          <div class="summary-value" id="overall-risk">0%</div>
+          <div class="summary-label">Overall Risk</div>
+        </div>
+        
+        <div class="summary-item">
+          <div class="summary-value" id="total-urls">0</div>
+          <div class="summary-label">URLs Analyzed</div>
+        </div>
+        
+        <div class="summary-item">
+          <div class="summary-value" id="high-risk-count">0</div>
+          <div class="summary-label">High Risk URLs</div>
+        </div>
+        
+        <div class="summary-item">
+          <div class="summary-value" id="medium-risk-count">0</div>
+          <div class="summary-label">Medium Risk URLs</div>
+        </div>
+      </div>
+      
+      <div class="risk-level-indicator">
+        <div class="risk-level-fill" id="risk-level-fill" style="width: 0%;"></div>
+        <div class="risk-level-marker" id="risk-level-marker" style="left: 0%;"></div>
+      </div>
+    </div>
+    
+    <div class="report-section">
+      <h2 class="report-section-title">Detected Phishing Indicators</h2>
+      <div id="features-list" class="features-grid"></div>
+    </div>
+    
+    <div class="report-section">
+      <h2 class="report-section-title">URL Analysis</h2>
+      
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Page</th>
+            <th>Risk Score</th>
+            <th>Key Indicators</th>
+          </tr>
+        </thead>
+        <tbody id="urls-table-body">
+          <!-- Table rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+      
+      <div class="pagination" id="pagination">
+        <!-- Pagination buttons will be added here -->
+      </div>
+    </div>
+    
+    <div class="export-options">
+      <button id="download-pdf" class="btn btn-primary">
+        <i class="fas fa-file-pdf"></i> Download as PDF
+      </button>
+      <button id="download-csv" class="btn btn-outline">
+        <i class="fas fa-file-csv"></i> Download as CSV
+      </button>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Variables for pagination
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let reportData = null;
+    
+    // Initialize the report when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set the theme based on user preference
+      chrome.storage.local.get('settings', (data) => {
+        if (data.settings && data.settings.theme) {
+          document.body.className = data.settings.theme + '-mode';
+        }
+      });
+      
+      // Set current date
+      const now = new Date();
+      document.getElementById('report-date').textContent = now.toLocaleString();
+      
+      // Get report data from storage
+      chrome.storage.local.get(['reportData', 'reportFormat'], (data) => {
+        if (data.reportData) {
+          reportData = data.reportData;
+          
+          // Populate the report
+          populateReport(reportData);
+        } else {
+          // No data available
+          document.querySelector('.report-container').innerHTML = `
+            <div class="error-message" style="display: block;">
+              No report data available. Please analyze a PDF first.
+            </div>
+          `;
+        }
+      });
+      
+      // Event listeners for export buttons
+      document.getElementById('download-pdf').addEventListener('click', exportAsPdf);
+      document.getElementById('download-csv').addEventListener('click', exportAsCsv);
+    });
+    
+    // Populate the report with data
+    function populateReport(data) {
+      // Set overall risk
+      const overallRisk = data.risk_percentage || 0;
+      document.getElementById('overall-risk').textContent = overallRisk + '%';
+      
+      // Count URLs by risk level
+      let highRiskCount = 0;
+      let mediumRiskCount = 0;
+      let lowRiskCount = 0;
+      
+      if (data.url_analysis && data.url_analysis.length > 0) {
+        data.url_analysis.forEach(url => {
+          if (url.risk_percentage >= 70) {
+            highRiskCount++;
+          } else if (url.risk_percentage >= 40) {
+            mediumRiskCount++;
+          } else {
+            lowRiskCount++;
+          }
+        });
+      }
+      
+      // Update summary counts
+      document.getElementById('total-urls').textContent = (data.url_analysis || []).length;
+      document.getElementById('high-risk-count').textContent = highRiskCount;
+      document.getElementById('medium-risk-count').textContent = mediumRiskCount;
+      
+      // Update risk level indicator
+      const riskFill = document.getElementById('risk-level-fill');
+      const riskMarker = document.getElementById('risk-level-marker');
+      
+      riskFill.style.width = overallRisk + '%';
+      riskMarker.style.left = overallRisk + '%';
+      
+      // Set marker color based on risk
+      if (overallRisk >= 70) {
+        riskMarker.style.background = 'var(--danger)';
+      } else if (overallRisk >= 40) {
+        riskMarker.style.background = 'var(--warning)';
+      } else {
+        riskMarker.style.background = 'var(--success)';
+      }
+      
+      // Display detected features
+      const featuresGrid = document.getElementById('features-list');
+      featuresGrid.innerHTML = '';
+      
+      if (data.features && Object.keys(data.features).length > 0) {
+        Object.entries(data.features).forEach(([feature, isPresent]) => {
+          if (isPresent) {
+            const featureElement = document.createElement('div');
+            featureElement.className = 'feature-tag warning';
+            
+            // Format feature name
+            const formattedName = feature
+              .replace(/_/g, ' ')
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+            
+            featureElement.textContent = formattedName;
+            featuresGrid.appendChild(featureElement);
+          }
+        });
+      } else {
+        featuresGrid.innerHTML = '<div class="no-features">No suspicious features detected</div>';
+      }
+      
+      // Display URL analysis with pagination
+      displayUrlTable(data.url_analysis || [], currentPage);
+      setupPagination(data.url_analysis || []);
+    }
+    
+    // Display URL table with pagination
+    function displayUrlTable(urls, page) {
+      const tableBody = document.getElementById('urls-table-body');
+      tableBody.innerHTML = '';
+      
+      // If no URLs, show empty message
+      if (urls.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="4" style="text-align: center;">No URLs detected</td>';
+        tableBody.appendChild(row);
+        return;
+      }
+      
+      // Sort URLs by risk (highest first)
+      const sortedUrls = [...urls].sort((a, b) => b.risk_percentage - a.risk_percentage);
+      
+      // Calculate pagination
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, sortedUrls.length);
+      const displayedUrls = sortedUrls.slice(startIndex, endIndex);
+      
+      // Add rows for each URL
+      displayedUrls.forEach(url => {
+        const row = document.createElement('tr');
+        
+        // Determine risk class
+        let riskClass = '';
+        if (url.risk_percentage >= 70) {
+          riskClass = 'high-risk';
+        } else if (url.risk_percentage >= 40) {
+          riskClass = 'medium-risk';
+        } else {
+          riskClass = 'low-risk';
+        }
+        
+        // Get active features
+        let activeFeatures = [];
+        if (url.features) {
+          activeFeatures = Object.entries(url.features)
+            .filter(([_, value]) => value)
+            .map(([key, _]) => {
+              return key.replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            });
+        }
+        
+        row.innerHTML = `
+          <td>${url.url}</td>
+          <td>${url.page + 1}</td>
+          <td><span class="risk-badge ${riskClass}">${url.risk_percentage}%</span></td>
+          <td>${activeFeatures.slice(0, 3).join(', ')}${activeFeatures.length > 3 ? '...' : ''}</td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+    
+    // Set up pagination controls
+    function setupPagination(urls) {
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      if (urls.length <= itemsPerPage) {
+        pagination.style.display = 'none';
+        return;
+      }
+      
+      pagination.style.display = 'flex';
+      
+      const totalPages = Math.ceil(urls.length / itemsPerPage);
+      
+      // Previous button
+      const prevButton = document.createElement('button');
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.disabled = currentPage === 1;
+      prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          displayUrlTable(urls, currentPage);
+          setupPagination(urls);
+        }
+      });
+      pagination.appendChild(prevButton);
+      
+      // Page buttons
+      const maxVisiblePages = 5;
+      const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.classList.toggle('active', i === currentPage);
+        pageButton.addEventListener('click', () => {
+          currentPage = i;
+          displayUrlTable(urls, currentPage);
+          setupPagination(urls);
+        });
+        pagination.appendChild(pageButton);
+      }
+      
+      // Next button
+      const nextButton = document.createElement('button');
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.disabled = currentPage === totalPages;
+      nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          displayUrlTable(urls, currentPage);
+          setupPagination(urls);
+        }
+      });
+      pagination.appendChild(nextButton);
+    }
+    
+    // Export as PDF
+    function exportAsPdf() {
+      try {
+        if (!reportData) {
+          alert('No report data available');
+          return;
+        }
+        
+        // Create PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Add title
+        doc.setFontSize(20);
+        doc.setTextColor(0, 119, 182);
+        doc.text('linksniff Phishing Analysis Report', 20, 20);
+        
+        // Add timestamp
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+        
+        // Add risk summary
+        doc.setFontSize(16);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Risk Summary', 20, 45);
+        
+        const overallRisk = reportData.risk_percentage || 0;
+        const totalUrls = (reportData.url_analysis || []).length;
+        
+        let highRiskCount = 0;
+        let mediumRiskCount = 0;
+        
+        if (reportData.url_analysis) {
+          reportData.url_analysis.forEach(url => {
+            if (url.risk_percentage >= 70) highRiskCount++;
+            else if (url.risk_percentage >= 40) mediumRiskCount++;
+          });
+        }
+        
+        doc.setFontSize(12);
+        doc.text(`Overall Risk: ${overallRisk}%`, 25, 55);
+        doc.text(`Total URLs: ${totalUrls}`, 25, 63);
+        doc.text(`High Risk URLs: ${highRiskCount}`, 25, 71);
+        doc.text(`Medium Risk URLs: ${mediumRiskCount}`, 25, 79);
+        
+        // Add detected features
+        if (reportData.features && Object.keys(reportData.features).some(key => reportData.features[key])) {
+          let yPos = 95;
+          
+          doc.setFontSize(16);
+          doc.text('Detected Features', 20, yPos);
+          yPos += 10;
+          
+          doc.setFontSize(12);
+          
+          const features = Object.entries(reportData.features)
+            .filter(([_, isPresent]) => isPresent)
+            .map(([feature, _]) => {
+              return feature.replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            });
+          
+          features.forEach(feature => {
+            doc.text(`• ${feature}`, 25, yPos);
+            yPos += 8;
+            
+            // Add new page if needed
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+          });
+        }
+        
+        // Add URL analysis
+        if (reportData.url_analysis && reportData.url_analysis.length > 0) {
+          doc.addPage();
+          let yPos = 20;
+          
+          doc.setFontSize(16);
+          doc.text('URL Analysis', 20, yPos);
+          yPos += 10;
+          
+          // Sort URLs by risk
+          const sortedUrls = [...reportData.url_analysis].sort((a, b) => b.risk_percentage - a.risk_percentage);
+          
+          sortedUrls.forEach((url, index) => {
+            // Check if we need a new page
+            if (yPos > 250) {
+              doc.addPage();
+              yPos = 20;
+            }
+            
+            // Risk level indicator
+            let riskColor;
+            if (url.risk_percentage >= 70) {
+              riskColor = [255, 77, 77]; // Red
+            } else if (url.risk_percentage >= 40) {
+              riskColor = [255, 170, 0]; // Orange
+            } else {
+              riskColor = [0, 204, 68]; // Green
+            }
+            
+            doc.setFontSize(12);
+            doc.setTextColor(riskColor[0], riskColor[1], riskColor[2]);
+            doc.text(`URL #${index + 1} - Risk: ${url.risk_percentage}% (Page ${url.page + 1})`, 20, yPos);
+            yPos += 8;
+            
+            // URL
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            
+            // Handle long URLs
+            const urlText = url.url;
+            if (doc.getTextWidth(urlText) > 170) {
+              // Split URL
+              let remainingText = urlText;
+              while (remainingText.length > 0) {
+                let i = remainingText.length;
+                while (i > 0 && doc.getTextWidth(remainingText.substring(0, i)) > 170) {
+                  i--;
+                }
+                
+                const chunk = remainingText.substring(0, i);
+                doc.text(chunk, 25, yPos);
+                yPos += 6;
+                remainingText = remainingText.substring(i);
+                
+                if (yPos > 270) {
+                  doc.addPage();
+                  yPos = 20;
+                }
+              }
+            } else {
+              doc.text(urlText, 25, yPos);
+              yPos += 6;
+            }
+            
+            // Active features
+            if (url.features) {
+              const activeFeatures = Object.entries(url.features)
+                .filter(([_, value]) => value)
+                .map(([key, _]) => {
+                  return key.replace(/_/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                });
+              
+              if (activeFeatures.length > 0) {
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Features: ${activeFeatures.join(', ')}`, 25, yPos);
+                yPos += 10;
+              }
+            }
+            
+            // Add separator
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, yPos, 190, yPos);
+            yPos += 15;
+          });
+        }
+        
+        // Save PDF
+        doc.save('linksniff_analysis_report.pdf');
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+      }
+    }
+    
+    // Export as CSV
+    function exportAsCsv() {
+      try {
+        if (!reportData || !reportData.url_analysis) {
+          alert('No report data available');
+          return;
+        }
+        
+        // Prepare CSV data
+        const csvRows = [];
+        
+        // Header row
+        csvRows.push(['URL', 'Page', 'Risk Percentage', 'Features']);
+        
+        // Data rows
+        reportData.url_analysis.forEach(url => {
+          let features = '';
+          
+          if (url.features) {
+            features = Object.entries(url.features)
+              .filter(([_, value]) => value)
+              .map(([key, _]) => key)
+              .join(', ');
+          }
+          
+          csvRows.push([
+            url.url,
+            url.page + 1,
+            url.risk_percentage,
+            features
+          ]);
+        });
+        
+        // Convert to CSV string
+        let csvContent = '';
+        csvRows.forEach(row => {
+          // Handle fields with commas or quotes
+          const processedRow = row.map(field => {
+            const fieldStr = String(field);
+            if (fieldStr.includes(',') || fieldStr.includes('"') || fieldStr.includes('\n')) {
+              return `"${fieldStr.replace(/"/g, '""')}"`;
+            }
+            return fieldStr;
+          });
+          
+          csvContent += processedRow.join(',') + '\n';
+        });
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'linksniff_analysis_report.csv');
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Error generating CSV:', error);
+        alert('Error generating CSV: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>

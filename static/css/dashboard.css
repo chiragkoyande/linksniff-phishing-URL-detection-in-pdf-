@@ -1,0 +1,368 @@
+/* Dashboard specific styles */
+
+.dashboard-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.light-mode .stat-card {
+  background-color: var(--card-light);
+  border-color: var(--border-light);
+  box-shadow: var(--box-shadow-light);
+}
+
+.dark-mode .stat-card {
+  background-color: var(--card-dark);
+  border-color: var(--border-dark);
+  box-shadow: var(--box-shadow-dark);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.stat-card.high-risk .stat-icon {
+  color: var(--danger);
+}
+
+.stat-card.medium-risk .stat-icon {
+  color: var(--warning);
+}
+
+.stat-card.low-risk .stat-icon {
+  color: var(--success);
+}
+
+.stat-card.total .stat-icon {
+  color: var(--primary);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-card.high-risk .stat-value {
+  color: var(--danger);
+}
+
+.stat-card.medium-risk .stat-value {
+  color: var(--warning);
+}
+
+.stat-card.low-risk .stat-value {
+  color: var(--success);
+}
+
+.stat-card.total .stat-value {
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.stat-percentage {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.progress-bar-thin {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.dark-mode .progress-bar-thin {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar-fill-high {
+  height: 100%;
+  background-color: var(--danger);
+}
+
+.progress-bar-fill-medium {
+  height: 100%;
+  background-color: var(--warning);
+}
+
+.progress-bar-fill-low {
+  height: 100%;
+  background-color: var(--success);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-bottom: 20px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.feature-stats-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.feature-item {
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid;
+}
+
+.light-mode .feature-item {
+  background-color: var(--card-light);
+  border-color: var(--border-light);
+}
+
+.dark-mode .feature-item {
+  background-color: var(--card-dark);
+  border-color: var(--border-dark);
+}
+
+.feature-name {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.feature-count {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.feature-bar-container {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dark-mode .feature-bar-container {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.feature-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--primary-light), var(--primary));
+}
+
+.history-table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.history-table th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid;
+}
+
+.light-mode .history-table th {
+  border-color: var(--border-light);
+}
+
+.dark-mode .history-table th {
+  border-color: var(--border-dark);
+}
+
+.history-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid;
+}
+
+.light-mode .history-table td {
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .history-table td {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.url-cell {
+  max-width: 300px;
+}
+
+.url-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.features-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+.features-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 300px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: normal;
+  font-size: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.features-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.export-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.export-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.light-mode .export-btn {
+  background-color: var(--card-light);
+  color: var(--text-light);
+  box-shadow: var(--box-shadow-light);
+}
+
+.dark-mode .export-btn {
+  background-color: var(--card-dark);
+  color: var(--text-dark);
+  box-shadow: var(--box-shadow-dark);
+}
+
+.export-btn:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.05);
+  margin: 20px 0;
+}
+
+.light-mode .empty-state {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark-mode .empty-state {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+.empty-state-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.empty-state-message {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-table th:nth-child(4),
+  .history-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .url-cell {
+    max-width: 200px;
+  }
+  
+  .url-text {
+    max-width: 200px;
+  }
+}

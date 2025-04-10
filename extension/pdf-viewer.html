@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Viewer - linksniff </title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.10.377/build/pdf.min.js"></script>
+</head>
+<body class="dark-mode">
+  <div class="pdf-container">
+    <div class="pdf-toolbar">
+      <div class="toolbar-left">
+        <button id="back-button" title="Back to extension">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+      </div>
+      
+      <div class="page-controls">
+        <button id="prev-page" title="Previous page">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="page-numbers">
+          <input type="number" id="page-num" min="1" value="1">
+          <span>/ <span id="page-count">0</span></span>
+        </div>
+        
+        <button id="next-page" title="Next page">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      
+      <div class="toolbar-right">
+        <button id="zoom-out" title="Zoom out">
+          <i class="fas fa-search-minus"></i>
+        </button>
+        
+        <button id="zoom-in" title="Zoom in">
+          <i class="fas fa-search-plus"></i>
+        </button>
+        
+        <button id="download-report" title="Export report">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+      </div>
+    </div>
+    
+    <div class="pdf-view-area">
+      <div id="pdf-upload-container" class="pdf-upload-container">
+        <div class="pdf-upload-icon">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <h2 class="pdf-upload-title">Upload PDF for Analysis</h2>
+        <p class="pdf-upload-description">
+          Upload a PDF file to analyze and highlight potential phishing links.
+        </p>
+        <input type="file" id="pdf-file-input" accept=".pdf">
+        <button class="btn btn-primary" onclick="document.getElementById('pdf-file-input').click()">
+          Select PDF File
+        </button>
+      </div>
+      
+      <div id="pdf-viewer-container" style="display: none;">
+        <div class="pdf-canvas-container">
+          <canvas id="pdf-canvas"></canvas>
+          
+          <div id="loading-indicator" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Loading PDF...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="error-message" class="error-message"></div>
+  
+  <script src="pdf-highlighter.js"></script>
+  <script>
+    // Initialize PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.10.377/build/pdf.worker.min.js';
+    
+    // Handle back button
+    document.getElementById('back-button').addEventListener('click', () => {
+      window.close();
+    });
+    
+    // Handle download report button
+    document.getElementById('download-report').addEventListener('click', () => {
+      chrome.storage.local.get('pdfAnalysisResults', (data) => {
+        if (data.pdfAnalysisResults) {
+          const reportFormat = window.confirm('Do you want to export as PDF? Click Cancel for CSV format.') ? 'pdf' : 'csv';
+          
+          // Send message to background script
+          chrome.runtime.sendMessage({
+            action: 'generateReport',
+            data: data.pdfAnalysisResults,
+            format: reportFormat,
+            filename: 'linksniff_pdf_report'
+          });
+        } else {
+          alert('No analysis results available');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

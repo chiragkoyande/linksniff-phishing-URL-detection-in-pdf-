@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Scanner - linksniff </title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="dark-mode">
+  <canvas id="particles-canvas"></canvas>
+  
+  <div class="container">
+    <div class="header">
+      <div class="title-container">
+        <h2>linksniff </h2>
+        <p>URL Phishing Scanner</p>
+      </div>
+      <button id="themeToggle" class="theme-toggle">☀️</button>
+    </div>
+
+    <div class="card">
+      <div class="url-scanner-container">
+        <p>Enter a URL to analyze for phishing threats:</p>
+        
+        <div class="url-input-container">
+          <input type="text" id="urlInput" placeholder="Enter URL to scan (e.g., http://example.com)" class="url-input">
+          <button id="scanUrlBtn" class="btn btn-primary">
+            <i class="fas fa-search"></i> Scan URL
+          </button>
+        </div>
+        
+        <div id="scanProgress" class="progress-container" style="display: none;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressBarFill" style="width: 0%"></div>
+          </div>
+          <p id="scanStatus" class="progress-status">Analyzing URL...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card result-section" id="resultSection" style="display: none;">
+      <div class="result-header">
+        <h3>Risk Assessment</h3>
+        <div class="result-status">
+          <div class="status-indicator" id="statusIndicator"></div>
+          <span id="resultText">Analyzing...</span>
+        </div>
+      </div>
+      
+      <div class="url-analysis-container">
+        <div class="url-header">
+          <div class="url-title">Scanned URL:</div>
+          <div class="url-value" id="scannedUrl"></div>
+        </div>
+        
+        <div class="risk-indicator-container">
+          <div class="risk-percentage-circle">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle class="circle-bg" cx="60" cy="60" r="54" stroke="#ddd" stroke-width="12" fill="none"></circle>
+              <circle id="riskCircle" class="circle-progress" cx="60" cy="60" r="54" stroke-width="12" fill="none" 
+                stroke-dasharray="339.292" stroke-dashoffset="339.292" stroke="#ff4444"></circle>
+            </svg>
+            <div class="risk-percentage-text">
+              <div id="riskPercentage">0%</div>
+            </div>
+          </div>
+        </div>
+        
+        <h3>Detected Features</h3>
+        <div class="features-list" id="featuresList">
+          <!-- Features will be added dynamically -->
+        </div>
+        
+        <div class="button-group">
+          <button id="exportReportBtn" class="btn btn-outline">
+            <i class="fas fa-download"></i> Export Report
+          </button>
+          <button id="resetBtn" class="btn btn-primary">
+            <i class="fas fa-redo"></i> Scan Another URL
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="error-message" class="error-message"></div>
+  </div>
+  
+  <script src="url-scanner.js"></script>
+</body>
+</html>

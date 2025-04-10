@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>linksniff-Dashboard</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="dark-mode">
+  <canvas id="particles-canvas"></canvas>
+  
+  <div class="container">
+    <div class="header">
+      <div class="title-container">
+        <h1>linksniff  Dashboard</h1>
+        <p>Phishing Detection Statistics & Analysis</p>
+      </div>
+      
+      <div class="nav-container">
+        <a href="/" class="nav-button">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/dashboard" class="nav-button">
+          <i class="fas fa-chart-bar"></i> Dashboard
+        </a>
+        <a href="/url-scanner" class="nav-button">
+          <i class="fas fa-search"></i> URL Scanner
+        </a>
+        <button id="themeToggle" class="theme-toggle">☀️</button>
+      </div>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="stat-value" id="total-scans">0</div>
+        <div class="stat-label">Total Scans</div>
+      </div>
+      
+      <div class="stat-card high-risk">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-value" id="high-risk-count">0</div>
+        <div class="stat-label">High Risk URLs</div>
+        <div class="stat-percentage" id="high-risk-percentage">0%</div>
+        <div class="progress-bar-thin">
+          <div class="progress-bar-fill-high" id="high-risk-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="stat-card medium-risk">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="stat-value" id="medium-risk-count">0</div>
+        <div class="stat-label">Medium Risk URLs</div>
+        <div class="stat-percentage" id="medium-risk-percentage">0%</div>
+        <div class="progress-bar-thin">
+          <div class="progress-bar-fill-medium" id="medium-risk-bar" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="stat-card low-risk">
+        <div class="stat-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="stat-value" id="low-risk-count">0</div>
+        <div class="stat-label">Low Risk URLs</div>
+        <div class="stat-percentage" id="low-risk-percentage">0%</div>
+        <div class="progress-bar-thin">
+          <div class="progress-bar-fill-low" id="low-risk-bar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>   
+      <div class="card">
+        <div class="card-header">
+          <div class="chart-title">Common Phishing Features</div>
+        </div>
+        <div class="card-body">
+          <div id="feature-stats-list" class="feature-stats-list">
+            <!-- Feature stats will be added dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        Recent Activity
+        <div class="export-container">
+          <button id="export-pdf" class="export-btn">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
+          <button id="export-csv" class="export-btn">
+            <i class="fas fa-file-csv"></i> Export CSV
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>URL</th>
+                <th>Risk</th>
+                <th>Features</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- History data will be added dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div id="error-message" class="error-message"></div>
+  </div>
+  
+  
+  <script src="/static/js/jspdf.min.js"></script>
+  <script src="/static/js/papaparse.min.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
