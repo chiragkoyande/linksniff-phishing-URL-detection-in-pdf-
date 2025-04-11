@@ -5,6 +5,7 @@
 
 Linksniff is a browser-based tool and Flask-powered backend that detects and highlights malicious URLs buried in PDF documents. It scans visible and hidden links (including metadata, JS, and obfuscated links), calculates a risk score, and presents results with intuitive visualizations.
 
+hosting link - https://linksniff-phishing-url-detection-in-pdf.onrender.com
 ---
 
 ## 📌 Features
